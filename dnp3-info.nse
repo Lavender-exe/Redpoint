@@ -1,4 +1,4 @@
-local bin = require "bin"
+local string = require "string"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -103,7 +103,7 @@ action = function(host, port)
   -- create output table
   local output = stdnse.output_table()
   -- query to pull the fist 100 address 
-  local first100 = bin.pack("H", "056405C900000000364C056405C901000000DE8E056405C" .. 
+  local first100 = string.pack("H", "056405C900000000364C056405C901000000DE8E056405C" .. 
          "9020000009F84056405C9030000007746056405C9040000" ..
 	 "001D90056405C905000000F552056405C906000000B4580" .. 
 	 "56405C9070000005C9A056405C90800000019B9056405C9" .. 
@@ -176,7 +176,7 @@ action = function(host, port)
     return "TIMEOUT: No response from query"
   end
   -- unpack first two bytes
-  local pos, byte1, byte2 = bin.unpack("CC", response, 1)
+  local pos, byte1, byte2 = string.unpack("CC", response, 1)
   -- check to see if it is 0x0564 
   if( byte1 == 0x05 and byte2 == 0x64) then
     -- close socket
@@ -184,11 +184,11 @@ action = function(host, port)
 	-- set nmap to reflect open DNP3
     set_nmap(host,port)
 	-- unpack bit string for PRM checking as well as function codes
-    local pos, ctrl = bin.unpack("B", response, 4)
+    local pos, ctrl = string.unpack("B", response, 4)
 	-- destination address
-    local pos, dstadd = bin.unpack("S", response, 5)
+    local pos, dstadd = string.unpack("S", response, 5)
 	-- source address
-    local pos, srceadd = bin.unpack("S", response, pos)
+    local pos, srceadd = string.unpack("S", response, pos)
 	-- set up output table with values
     output["Source Address"] = srceadd
     output["Destination Address"] = dstadd

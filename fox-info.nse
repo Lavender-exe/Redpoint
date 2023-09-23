@@ -1,4 +1,4 @@
-local bin = require "bin"
+local string = require "string"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -116,7 +116,7 @@ end
 -- @param port port that was scanned via nmap
 action = function(host, port)
   --set the first query data for sending
-  local orig_query = bin.pack( "H","666f7820612031202d3120666f782068656c6c6f0a7b0a" ..
+  local orig_query = string.pack( "H","666f7820612031202d3120666f782068656c6c6f0a7b0a" ..
                      "666f782e76657273696f6e3d733a312e300a69643d693a310a686f73744e" ..
 		     "616d653d733a7870766d2d306f6d64633031786d790a686f737441646472" ..
 		     "6573733d733a3139322e3136382e312e3132350a6170702e6e616d653d73" ..

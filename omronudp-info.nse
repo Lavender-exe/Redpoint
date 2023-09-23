@@ -1,4 +1,4 @@
-local bin = require "bin"
+local string = require "string"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -98,7 +98,7 @@ end
 action = function(host,port)
   -- 0501 is the command to read the Controller Data
   -- This command via UDP will result
-  local controller_data_read = bin.pack("H", "800002000000006300ef050100")
+  local controller_data_read = string.pack("H", "800002000000006300ef050100")
      
   -- create table for output
   local output = stdnse.output_table()
@@ -120,11 +120,11 @@ action = function(host,port)
   if(rcvstatus == false) then
     return false, response
   end
-  local pos, header = bin.unpack("C", response, 1) 
+  local pos, header = string.unpack("C", response, 1) 
   if(header == 0xc0 or header == 0xc1) then
 	set_nmap(host, port)
 	local response_code
-    pos, response_code = bin.unpack("<S", response, 13)
+    pos, response_code = string.unpack("<S", response, 13)
 	-- test for a few of the error codes I saw when testing the script
 	if(response_code == 2081) then
 	  output["Response Code"] = "Data cannot be changed (0x2108)"
@@ -134,19 +134,19 @@ action = function(host,port)
 	elseif(response_code == 0) then
 	  -- parse information from response
 	  pos, output["Response Code"] = "Normal completion (0x0000)"
-	  pos, output["Controller Model"] = bin.unpack("z", response,15) 
-	  pos, output["Controller Version"] = bin.unpack("z", response, 35)
-	  pos, output["For System Use"] = bin.unpack("z", response, 55)
-	  pos, output["Program Area Size"] = bin.unpack(">S", response, 95)
-	  pos, output["IOM size"] = bin.unpack("C", response, pos)
-	  pos, output["No. DM Words"] = bin.unpack(">S", response, pos)
-	  pos, output["Timer/Counter"] = bin.unpack("C", response, pos)
-	  pos, output["Expansion DM Size"] = bin.unpack("C", response, pos)
-	  pos, output["No. of steps/transitions"] = bin.unpack(">S", response, pos)
+	  pos, output["Controller Model"] = string.unpack("z", response,15) 
+	  pos, output["Controller Version"] = string.unpack("z", response, 35)
+	  pos, output["For System Use"] = string.unpack("z", response, 55)
+	  pos, output["Program Area Size"] = string.unpack(">S", response, 95)
+	  pos, output["IOM size"] = string.unpack("C", response, pos)
+	  pos, output["No. DM Words"] = string.unpack(">S", response, pos)
+	  pos, output["Timer/Counter"] = string.unpack("C", response, pos)
+	  pos, output["Expansion DM Size"] = string.unpack("C", response, pos)
+	  pos, output["No. of steps/transitions"] = string.unpack(">S", response, pos)
 	  local mem_card_type
-	  pos, mem_card_type = bin.unpack("C", response, pos)
+	  pos, mem_card_type = string.unpack("C", response, pos)
 	  output["Kind of Memory Card"] = memory_card(mem_card_type)
-	  pos, output["Memory Card Size"] = bin.unpack(">S", response, pos) 
+	  pos, output["Memory Card Size"] = string.unpack(">S", response, pos) 
 
 	else 
 	  output["Response Code"] = "Unknown Response Code"

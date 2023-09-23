@@ -1,4 +1,4 @@
-local bin = require "bin"
+local string = require "string"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -93,12 +93,12 @@ function init_comms(socket, output)
 
   -- decelerations
   local pos
-  local payload = bin.pack("H","000100000004005a0002")
+  local payload = string.pack("H","000100000004005a0002")
   socket:send(payload)
   -- recv packet, however not going to do anything with it
   local rcvstatus, response = socket:receive() 
   -- send and receive, not going to do anything with this packet. 
-  payload = bin.pack("H","000200000005005a000100")
+  payload = string.pack("H","000200000005005a000100")
   socket:send(payload)
   local rcvstatus, response = socket:receive() 
   -- create a string with 249 T (0x54)
@@ -109,15 +109,15 @@ function init_comms(socket, output)
 	count = count + 1
   end
   -- send packet with 249 T's (0x54), recv packet and do nothing as well
-  payload = bin.pack("H","0003000000fe005a00fe00" .. ice)
+  payload = string.pack("H","0003000000fe005a00fe00" .. ice)
   socket:send(payload)
   local rcvstatus, response = socket:receive() 
   -- send packet that request the project information
-  payload = bin.pack("H","000400000005005a000300")
+  payload = string.pack("H","000400000005005a000300")
   socket:send(payload)
   local rcvstatus, response = socket:receive() 
   -- unpack the Project Name, this is configured by the engineers
-  local pos, project_name = bin.unpack("z", response, 50)
+  local pos, project_name = string.unpack("z", response, 50)
   -- unpack the year that the project was last modified
   -- define the next sections we are going to unpack 
   -- Each one is to support time stamp
@@ -132,35 +132,35 @@ function init_comms(socket, output)
   local project_rev_3
   -- unpack the time stamp, as well as the revision numbers
   -- unpack the seconds
-  pos, project_sec = bin.unpack("C", response, 38)
+  pos, project_sec = string.unpack("C", response, 38)
   -- unpack the min
-  pos, project_min = bin.unpack("C", response, pos)
+  pos, project_min = string.unpack("C", response, pos)
   -- unpack the hour
-  pos, project_hour = bin.unpack("C", response, pos)
+  pos, project_hour = string.unpack("C", response, pos)
   -- unpack the day
-  pos, project_day = bin.unpack("C", response, pos)
+  pos, project_day = string.unpack("C", response, pos)
   -- unpack the month
-  pos, project_month = bin.unpack("C", response, pos)
-  pos, project_year = bin.unpack("<S", response, pos)
+  pos, project_month = string.unpack("C", response, pos)
+  pos, project_year = string.unpack("<S", response, pos)
   -- The next 3 are for the revision number
-  pos, project_rev_1 = bin.unpack("C", response, pos )
-  pos, project_rev_2 =  bin.unpack("C", response, pos)
-  pos, project_rev_3 =  bin.unpack("C", response, pos)
+  pos, project_rev_1 = string.unpack("C", response, pos )
+  pos, project_rev_2 =  string.unpack("C", response, pos)
+  pos, project_rev_3 =  string.unpack("C", response, pos)
   
   
-  payload = bin.pack("H","000500000005005a000304")
+  payload = string.pack("H","000500000005005a000304")
   socket:send(payload)
   local rcvstatus, response = socket:receive() 
 	
-  payload = bin.pack("H","000600000004005a0004")
+  payload = string.pack("H","000600000004005a0004")
   socket:send(payload)
   local rcvstatus, response = socket:receive() 
 	
-  payload = bin.pack("H","000700000005005a000100")
+  payload = string.pack("H","000700000005005a000100")
   socket:send(payload)
   local rcvstatus, response = socket:receive() 
 	
-  payload = bin.pack("H","0008000000fe005a000a00000102030405060708090a0b0c0d0e0f10111213141516" .. 
+  payload = string.pack("H","0008000000fe005a000a00000102030405060708090a0b0c0d0e0f10111213141516" .. 
     "1718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f40414243" ..
 	"4445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f606162636465666768696a6b6c6d6e6f70" ..
 	"7172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d" ..
@@ -169,34 +169,34 @@ function init_comms(socket, output)
   socket:send(payload)
   local rcvstatus, response = socket:receive() 
 	
-  payload = bin.pack("H","000900000004005a0004")
+  payload = string.pack("H","000900000004005a0004")
   socket:send(payload)
   local rcvstatus, response = socket:receive() 
 	
-  payload = bin.pack("H","000a00000004005a0004")
+  payload = string.pack("H","000a00000004005a0004")
   socket:send(payload)
   local rcvstatus, response = socket:receive() 
 	
-  payload = bin.pack("H","000b00000004005a0004")
+  payload = string.pack("H","000b00000004005a0004")
   socket:send(payload)
   local rcvstatus, response = socket:receive() 
 	
-  payload = bin.pack("H","000c0000000d005a0020001300000000006400")
+  payload = string.pack("H","000c0000000d005a0020001300000000006400")
   socket:send(payload)
   local rcvstatus, response = socket:receive() 
 	
-  payload = bin.pack("H","000d0000000d005a0020001300640000009c00")
+  payload = string.pack("H","000d0000000d005a0020001300640000009c00")
   socket:send(payload)
   local rcvstatus, response = socket:receive() 
 	
-  payload = bin.pack("H","000e0000000d005a0020001400000000006400")
+  payload = string.pack("H","000e0000000d005a0020001400000000006400")
   socket:send(payload)
   local rcvstatus, response = socket:receive() 
 	
-  payload = bin.pack("H","000f0000000d005a002000140064000000f600")
+  payload = string.pack("H","000f0000000d005a002000140064000000f600")
   socket:send(payload)
   local rcvstatus, response = socket:receive() 
-  local pos, size = bin.unpack("C", response, 6)
+  local pos, size = string.unpack("C", response, 6)
   -- calcualate size of packet, from the starting point we will be reading
   local project_info = ""
   local tmp_proj_info
@@ -206,7 +206,7 @@ function init_comms(socket, output)
   -- into the packet
   for pos=180,size+6 do
 	-- if pos is equal to nil or 0x00 
-	pos, tmp_proj_info = bin.unpack("A", response, pos)
+	pos, tmp_proj_info = string.unpack("A", response, pos)
 	if (tmp_proj_info == nil or stdnse.tohex(tmp_proj_info) == "00") then
 	  pos = pos + 1
 	  project_info = project_info .. " "
@@ -217,11 +217,11 @@ function init_comms(socket, output)
   end
   -- define and unpack the project file name
   local project_fn
-  payload = bin.pack("H","00100000000d005a00200014005a010000f600")
+  payload = string.pack("H","00100000000d005a00200014005a010000f600")
   socket:send(payload)
   local rcvstatus, response = socket:receive() 
   -- parse the project filename
-  pos, project_fn = bin.unpack("z", response, 14)
+  pos, project_fn = string.unpack("z", response, 14)
   -- if nil then set some value, other wise we will have issues concatenating strings
   if(project_fn == nil) then
 	project_fn = ""
@@ -245,10 +245,10 @@ end
 -- @param port port that was scanned via nmap
 action = function(host,port)
   -- Function code 43 (0x2b), read device identification (14 - 0x0e)
-  local modbus_req_ident = bin.pack("H","000000000005002b0e0200")
+  local modbus_req_ident = string.pack("H","000000000005002b0e0200")
   -- Function Code 90 (0x5a) request CPU and Request Memory
-  local modbus_req_cpu = bin.pack("H","000100000004005a0002")
-  local modbus_req_mem = bin.pack("H","01bf00000005005a000606")
+  local modbus_req_cpu = string.pack("H","000100000004005a0002")
+  local modbus_req_mem = string.pack("H","01bf00000005005a000606")
   -- create new output table in Nmap format  
   local output = stdnse.output_table()
   local revision = nil
@@ -271,21 +271,21 @@ action = function(host,port)
   if(rcvstatus == false) then
     return false, response
   end
-  local pos, status = bin.unpack("C", response, 9) 
+  local pos, status = string.unpack("C", response, 9) 
   if (status == 0x07) then
     set_nmap(host, port)
 	return "\n\tUnknown Exception Code"
   end
   -- parse out the number of responses 
-  local pos, numresponses = bin.unpack("C", response, 14)
+  local pos, numresponses = string.unpack("C", response, 14)
   if (numresponses == 0x03) then
     set_nmap(host, port)
-    local pos, size = bin.unpack("C", response, 16)
-	pos, output["Vendor Name"] = bin.unpack("A" .. size, response, 17)
-	pos, size = bin.unpack("C", response, pos + 1) 
-	pos, output["Network Module"] = bin.unpack("A" .. size, response, pos) 
-	pos, size = bin.unpack("C", response, pos + 1)
-	pos, revision = bin.unpack("A" .. size, response, pos)
+    local pos, size = string.unpack("C", response, 16)
+	pos, output["Vendor Name"] = string.unpack("A" .. size, response, 17)
+	pos, size = string.unpack("C", response, pos + 1) 
+	pos, output["Network Module"] = string.unpack("A" .. size, response, pos) 
+	pos, size = string.unpack("C", response, pos + 1)
+	pos, revision = string.unpack("A" .. size, response, pos)
 	if (string.sub(output["Vendor Name"], 1, 9) == "Schneider") then
 	  
 	  try(socket:send(modbus_req_cpu))
@@ -293,13 +293,13 @@ action = function(host,port)
       if(rcvstatus == false) then
         return false, response
       end
-	  local pos, status = bin.unpack("C", response, 9)
+	  local pos, status = string.unpack("C", response, 9)
 	  if (status == 0x01) then
 	    output["Firmware"] = revision
 	    return output
 	  end
-	  pos, size = bin.unpack("C", response, 33) 
-	  pos, output["CPU Module"] = bin.unpack("A" .. size, response, pos) 
+	  pos, size = string.unpack("C", response, 33) 
+	  pos, output["CPU Module"] = string.unpack("A" .. size, response, pos) 
 	  output["Firmware"] = revision
 	  
 	  try(socket:send(modbus_req_mem))
@@ -307,9 +307,9 @@ action = function(host,port)
       if(rcvstatus == false) then
         return false, response
       end
-	  pos, size = bin.unpack("C", response, 17)
+	  pos, size = string.unpack("C", response, 17)
 	  if(size ~= nil) then
-	    pos, output["Memory Card"] = bin.unpack("A" .. size, response, pos)
+	    pos, output["Memory Card"] = string.unpack("A" .. size, response, pos)
 	  end
 	  output = init_comms(socket, output)
 	  --output = read_ladder(socket, output)

@@ -1,4 +1,4 @@
-local bin = require "bin"
+local string = require "string"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -855,7 +855,7 @@ function field_size(packet)
     offset = 20
   end
   -- unpack a string of length <value>
-  offset, charset, info = bin.unpack("CA" .. tostring(value), packet, offset)
+  offset, charset, info = string.unpack("CA" .. tostring(value), packet, offset)
   -- return information that was found in the packet
   if charset == 0 then -- UTF-8
     return info
@@ -894,19 +894,19 @@ function standard_query(socket, type)
 
 
   -- set the query for vendor name
-  local vendor_query = bin.pack("H","810a001101040005010c0c023FFFFF1979")
+  local vendor_query = string.pack("H","810a001101040005010c0c023FFFFF1979")
   -- set the firmware version query data for sending
-  local firmware_query = bin.pack("H","810a001101040005010c0c023FFFFF192c")
+  local firmware_query = string.pack("H","810a001101040005010c0c023FFFFF192c")
   -- set the application version query data for sending
-  local appsoft_query = bin.pack("H","810a001101040005010c0c023FFFFF190c")
+  local appsoft_query = string.pack("H","810a001101040005010c0c023FFFFF190c")
   -- set the object name query data for sending
-  local object_query = bin.pack("H","810a001101040005010c0c023FFFFF194d")
+  local object_query = string.pack("H","810a001101040005010c0c023FFFFF194d")
   -- set the model name query data for sending
-  local model_query = bin.pack("H","810a001101040005010c0c023FFFFF1946")
+  local model_query = string.pack("H","810a001101040005010c0c023FFFFF1946")
   -- set the desc name query data for sending
-  local desc_query = bin.pack("H","810a001101040005010c0c023FFFFF191c")
+  local desc_query = string.pack("H","810a001101040005010c0c023FFFFF191c")
   -- set the location name query data for sending
-  local location_query = bin.pack("H","810a001101040005010c0c023FFFFF193A")
+  local location_query = string.pack("H","810a001101040005010c0c023FFFFF193A")
   local query
 
   --
@@ -942,7 +942,7 @@ function standard_query(socket, type)
   -- validate valid BACNet Packet
   if( string.starts(response, "\x81")) then
     -- Lookup byte 7 (pakcet type)
-    local pos, value = bin.unpack("C", response, 7)
+    local pos, value = string.unpack("C", response, 7)
     -- verify that the response packet was not an error packet
     if( value ~= 0x50) then
       --collect information by looping thru the packet
@@ -968,7 +968,7 @@ end
 function vendornum_query(socket)
 
   -- set the vendor query data for sending
-  local vendor_query = bin.pack("H","810a001101040005010c0c023FFFFF1978")
+  local vendor_query = string.pack("H","810a001101040005010c0c023FFFFF1978")
 
 
   --send the vendor information
@@ -985,12 +985,12 @@ function vendornum_query(socket)
   end
   -- validate valid BACNet Packet
   if( string.starts(response, "\x81")) then
-    local pos, value = bin.unpack("C", response, 7)
+    local pos, value = string.unpack("C", response, 7)
     --if the vendor query resulted in an error
     if( value ~= 0x50) then
       -- read values for byte 18 in the packet data
       -- this value determines if vendor number is 1 or 2 bytes
-      pos, value = bin.unpack("C", response, 18)
+      pos, value = string.unpack("C", response, 18)
     else
       stdnse.debug1("Error receiving Vendor ID: BACNet Error")
       return nil
@@ -1005,7 +1005,7 @@ function vendornum_query(socket)
     elseif( value == 0x22 ) then
       -- convert hex to decimal
       local vendornum
-      pos, vendornum = bin.unpack(">S", response, 19)
+      pos, vendornum = string.unpack(">S", response, 19)
       -- look up vendor name from table
       return vendor_lookup(vendornum)
     else
@@ -1028,9 +1028,9 @@ function bvlc_query(socket, type)
 
   -- set the BVLC query data for sending
   -- BBMD = 0x02
-  local bbmd_query = bin.pack("H","81020004")
+  local bbmd_query = string.pack("H","81020004")
   -- FDT = 0x06
-  local fdt_query = bin.pack("H","81060004")
+  local fdt_query = string.pack("H","81060004")
   -- initialize query var 
   local query
 
@@ -1065,10 +1065,10 @@ function bvlc_query(socket, type)
     local resptype
     
     -- unpack response type, this will be used to determine BBMD vs FDT
-    local pos, resptype = bin.unpack("C", response, 2)
+    local pos, resptype = string.unpack("C", response, 2)
     
     -- unpack length, this will be the length of the information to be parsed
-    pos, length = bin.unpack(">S", response, 3)
+    pos, length = string.unpack(">S", response, 3)
 	-- add one to length since Lua starts at 1 not 0
     length = length + 1
     stdnse.debug1("BVLC-" .. type .. ": starting on bacnet bytes: " .. length)
@@ -1077,8 +1077,8 @@ function bvlc_query(socket, type)
 	  -- response type will be BVLC-Result
 	  if resptype == 0 then
 	    -- unpack two bytes of interest 
-	    pos, byte1 = bin.unpack("C", response, 4)
-	    pos, byte2 = bin.unpack("C", response, 6) 
+	    pos, byte1 = string.unpack("C", response, 4)
+	    pos, byte2 = string.unpack("C", response, 6) 
 	    if byte1 == 0x06 and byte2 == 0x40 then
 		  return "Non-Acknowledgement (NAK)"
 	    elseif byte1 == 0x06 and byte2 == 0x20 then
@@ -1101,12 +1101,12 @@ function bvlc_query(socket, type)
     while pos < length do
       local ipaddr = ""
       --Unpack and the IP Address from the response
-      pos, info = bin.unpack("<I", response, pos)
+      pos, info = string.unpack("<I", response, pos)
       ipaddr = ipOps.fromdword(info)
       -- if BBMD type
       if resptype == 3 then
         --Unpack port number used by host in BBMD
-        pos, info = bin.unpack(">S", response, pos)
+        pos, info = string.unpack(">S", response, pos)
 	-- Make string to be stored in output table to be returned to Nmap
         ipaddr = ipaddr .. ":" .. info
         -- shift by 4 bytes
@@ -1115,13 +1115,13 @@ function bvlc_query(socket, type)
       -- else if the type is FDT
       elseif resptype == 7 then
         --Unpack port number
-        pos, info = bin.unpack(">S", response, pos)
+        pos, info = string.unpack(">S", response, pos)
         ipaddr = ipaddr .. ":" .. info
         --Unpack TTL field
-        pos, info = bin.unpack(">S", response, pos)
+        pos, info = string.unpack(">S", response, pos)
         ipaddr = ipaddr .. ":ttl=" .. info
         --Unpack the timeout field
-        pos, info = bin.unpack(">S", response, pos)
+        pos, info = string.unpack(">S", response, pos)
         ipaddr = ipaddr .. ":timeout=" .. info
         stdnse.debug1("BVLC-" .. type .. ": found this: " .. ipaddr)
       -- else the type was not something we were asking for
@@ -1158,18 +1158,18 @@ end
 -- @param port port that was scanned via nmap
 action = function(host, port)
   --set the first query data for sending
-  local orig_query = bin.pack("H","810a001101040005010c0c023FFFFF194b" )
+  local orig_query = string.pack("H","810a001101040005010c0c023FFFFF194b" )
   
 local to_return = nil
   -- create new socket
   local sock = nmap.new_socket()
-  -- Bind to port for niceness with BACNet this may need to be commented out if
+  -- stringd to port for niceness with BACNet this may need to be commented out if
   -- scanning more than one host at a time, may fix some issues seen on Windows
   --
-  local status, err = sock:bind(nil, 47808)
+  local status, err = sock:stringd(nil, 47808)
   if(status == false) then
     stdnse.debug1(
-      "Couldn't bind to 47808/udp. Continuing anyway, results may vary")
+      "Couldn't stringd to 47808/udp. Continuing anyway, results may vary")
   end
   -- connect to the remote host
   local constatus, conerr = sock:connect(host, port)
@@ -1198,7 +1198,7 @@ local to_return = nil
 
   -- if the response starts with 0x81 then its BACNet
   if( string.starts(response, "\x81")) then
-    local pos, value = bin.unpack("C", response, 7)
+    local pos, value = string.unpack("C", response, 7)
     --if the first query resulted in an error
     --
     if( value == 0x50) then
@@ -1221,7 +1221,7 @@ local to_return = nil
 
       -- Instance Number (object number)
       local instance_upper, instance
-      pos, instance_upper, instance = bin.unpack("C>S", response, 20)
+      pos, instance_upper, instance = string.unpack("C>S", response, 20)
       to_return["Object-identifier"] = instance_upper * 0x10000 + instance
 
       --Firmware Verson

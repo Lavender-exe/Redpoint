@@ -1,4 +1,4 @@
-local bin = require "bin"
+local string = require "string"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -59,7 +59,7 @@ end
 -- @param port port that was scanned via nmap
 action = function(host,port)
   -- pack the inital communications to the PLC5
-  local init_coms = bin.pack("H","01010000000000000000000000040005000000000000000000000000")
+  local init_coms = string.pack("H","01010000000000000000000000040005000000000000000000000000")
   -- create table for output
   local output = stdnse.output_table()
   -- create local vars for socket handling
@@ -83,11 +83,11 @@ action = function(host,port)
     return false, response
   end
   -- unpack the response first byte
-  local pos, first_check = bin.unpack("C", response, 1)
+  local pos, first_check = string.unpack("C", response, 1)
   -- Validate the response is the response we expected 
   if(first_check == 0x02) then
     -- store Session ID in output table 
-    pos, output["Session ID"] = bin.unpack("i", response, 5)
+    pos, output["Session ID"] = string.unpack("i", response, 5)
     -- set Nmap output
     set_nmap(host, port)
     -- close socket

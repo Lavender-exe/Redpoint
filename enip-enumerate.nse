@@ -1,4 +1,4 @@
-local bin = require "bin"
+local string = require "string"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
 local shortport = require "shortport"
@@ -191,7 +191,7 @@ local vendor_id = {
   [121] = "KUKA Roboter GmbH",
   [122] = "Reserved",
   [123] = "SEC (Samsung Electronics Co.Ltd)",
-  [124] = "Binary Electronics Ltd",
+  [124] = "stringary Electronics Ltd",
   [125] = "Flexible Machine Controls",
   [126] = "Reserved",
   [127] = "ABB Inc. (Entrelec)",
@@ -370,7 +370,7 @@ local vendor_id = {
   [300] = "Shinagawa Electric Wire Co.Ltd.",
   [301] = "Yokogawa M&C Corporation",
   [302] = "KONAN Electric Co.Ltd.",
-  [303] = "Binar Elektronik AB",
+  [303] = "stringar Elektronik AB",
   [304] = "Furukawa Electric Co.",
   [305] = "Cooper Energy Services",
   [306] = "Schleicher GmbH & Co.",
@@ -626,7 +626,7 @@ local vendor_id = {
   [556] = "Microcontrol (Australia) Pty Ltd",
   [557] = "Serra Soldadura] = S.A.",
   [558] = "Southwest Research Institute",
-  [559] = "Cabinplant International",
+  [559] = "Castringplant International",
   [560] = "Sartorius Mechatronics T&H GmbH",
   [561] = "Comau S.p.A. Robotics & Final Assembly Division",
   [562] = "Phoenix Contact",
@@ -1372,7 +1372,7 @@ end
 -- @param port port that was scanned via nmap
 action = function(host,port)
   -- pack the request identity packet (0x63)
-  local enip_req_ident = bin.pack("H","63000000000000000000000000000000c1debed100000000")
+  local enip_req_ident = string.pack("H","63000000000000000000000000000000c1debed100000000")
   -- create table for output
   local output = stdnse.output_table()
   -- create local vars for socket handling
@@ -1396,36 +1396,36 @@ action = function(host,port)
     return false, response
   end
   -- unpack the response command
-  local pos, command = bin.unpack("C", response, 1)
+  local pos, command = string.unpack("C", response, 1)
   -- unpack the response type id
-  local pos, typeid = bin.unpack("C", response, 27)
+  local pos, typeid = string.unpack("C", response, 27)
   -- if command is 0x63
   if ( command == 0x63) then
     -- if typeid == 0x0c (req ident)
     if( typeid == 0x0c) then
 
       -- vendor number
-      local pos, vennum = bin.unpack("<S", response, 49)
+      local pos, vennum = string.unpack("<S", response, 49)
       -- look up vendor number and store in output table
       output["Vendor"] = vendor_lookup(vennum) .. " (" .. vennum .. ")"
       -- unpack product name into output table
-      pos, output["Product Name"] = bin.unpack("p", response, 63)
+      pos, output["Product Name"] = string.unpack("p", response, 63)
       -- unpack the serial number
-      local pos, serial = bin.unpack("<I", response, 59)
+      local pos, serial = string.unpack("<I", response, 59)
       -- print it out in hex format
       output["Serial Number"] = string.format("%#0.8x", serial)
       -- device type number
-      local pos, devnum = bin.unpack("<S", response, 51)
+      local pos, devnum = string.unpack("<S", response, 51)
       -- lookup device type based off number, return to output table
       output["Device Type"] = device_type_lookup(devnum) .. " (" .. devnum .. ")"
       -- unpack product code as a two byte int
-      pos, char1 = bin.unpack("S", response, 53)
+      pos, char1 = string.unpack("S", response, 53)
       output["Product Code"] = char1
       -- Revision Nuumber
-      pos, char1, char2 = bin.unpack("CC", response, 55)
+      pos, char1, char2 = string.unpack("CC", response, 55)
       output["Revision"] = char1 .. "." .. char2
       -- Device IP, this could be the same, as the IP scanning, or may be actual IP behind NAT
-      local pos, dword = bin.unpack("<I", response, 37)
+      local pos, dword = string.unpack("<I", response, 37)
       output["Device IP"] = ipOps.fromdword(dword)
       -- set Nmap output
       set_nmap(host, port)

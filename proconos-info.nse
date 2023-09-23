@@ -1,4 +1,4 @@
-local bin = require "bin"
+local string = require "string"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -69,7 +69,7 @@ end
 -- @param host Host that was scanned via nmap
 -- @param port port that was scanned via nmap
 action = function(host,port)
-  local req_info = bin.pack("H","cc01000b4002000047ee")
+  local req_info = string.pack("H","cc01000b4002000047ee")
   -- create table for output
   local output = stdnse.output_table()
   -- create local vars for socket handling
@@ -89,16 +89,16 @@ action = function(host,port)
   local rcvstatus, response = socket:receive()
   if(rcvstatus == false) then
     return false, response
-  end    local pos, check1 = bin.unpack("C",response,1)
+  end    local pos, check1 = string.unpack("C",response,1)
   -- if the fist byte is 0xcc 
   if(check1 == 0xcc) then
 	set_nmap(host, port)
     -- create output table with proper data
-    pos, output["Ladder Logic Runtime"] = bin.unpack("z",response,13)
-	pos, output["PLC Type"] = bin.unpack("z",response, 45)
-	pos, output["Project Name"] = bin.unpack("z", response, 78)
-	pos, output["Boot Project"] = bin.unpack("z", response, pos)
-	pos, output["Project Source Code"] = bin.unpack("z", response, pos) 
+    pos, output["Ladder Logic Runtime"] = string.unpack("z",response,13)
+	pos, output["PLC Type"] = string.unpack("z",response, 45)
+	pos, output["Project Name"] = string.unpack("z", response, 78)
+	pos, output["Boot Project"] = string.unpack("z", response, pos)
+	pos, output["Project Source Code"] = string.unpack("z", response, pos) 
 	-- close socket and return output table
 	socket:close()
 	return output
